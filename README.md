@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/martinusbach/vt-timers.svg?branch=master)](https://travis-ci.org/martinusbach/vt-timers)
+[![Build status](https://ci.appveyor.com/api/projects/status/56wbff12087v5el4/branch/master?svg=true)](https://ci.appveyor.com/project/martinusbach/vt-timers/branch/master)
 
 Profiling timers
 ================
