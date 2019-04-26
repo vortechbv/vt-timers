@@ -60,15 +60,25 @@ private:
     unsigned nr_calls_;
 };
 
+
+// C++ API
+
+PROFILING_TIMERS_ATTR void timers_to_stream(std::ostream& stream);
+
+PROFILING_TIMERS_ATTR std::string timers_to_string();
+
+// C API
+
 PROFILING_TIMERS_ATTR void timer_tic(const char* name);
 
 PROFILING_TIMERS_ATTR void timer_toc(const char* name);
 
-PROFILING_TIMERS_ATTR std::string timers_report_string();
+PROFILING_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n);
 
-PROFILING_TIMERS_ATTR void timers_report();
+PROFILING_TIMERS_ATTR void timers_to_stdout();
 
 PROFILING_TIMERS_ATTR void timers_reset();
+
 
 }
 

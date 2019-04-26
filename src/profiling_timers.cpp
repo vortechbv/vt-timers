@@ -30,6 +30,7 @@
 #include <sstream>
 #include <thread>
 #include <mutex>
+#include <cstring>
 
 #include <omp.h>
 
@@ -212,7 +213,7 @@ std::string Timer::tree_string(const std::string& name, const size_t level, cons
 }
 
 
-void timer_tic(const char* name)
+PROFILING_TIMERS_ATTR void timer_tic(const char* name)
 {
     if (current_level == nullptr) {
         current_level = &toplevel;
@@ -230,7 +231,7 @@ void timer_tic(const char* name)
 }
 
 
-void timer_toc(const char* name)
+PROFILING_TIMERS_ATTR void timer_toc(const char* name)
 {
     if (current_level == nullptr)
         throw std::runtime_error("No started timers available!");
@@ -268,17 +269,15 @@ static void timers_collect()
 }
 
 
-std::string timers_report_string()
+PROFILING_TIMERS_ATTR void timers_to_stream(std::ostream& out)
 {
     if (current_level != &toplevel && current_level != nullptr)
         throw std::runtime_error("Not all timers have been stopped!");
 
-    std::stringstream out;
-
     if (current_level == nullptr && timers.size() == 0)
     {
         out << "No timings to report.\n";
-        return out.str();
+        return;
     }
 
     timers_collect();
@@ -313,18 +312,33 @@ std::string timers_report_string()
 
         out << timer.tree_string(thread_id, 0, label_length);
     }
+}
 
+
+PROFILING_TIMERS_ATTR std::string timers_to_string()
+{
+    std::stringstream out;
+    timers_to_stream(out);
     return out.str();
 }
 
 
-void timers_report()
+PROFILING_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n)
 {
-    std::cout << timers_report_string();
+    std::stringstream out;
+    timers_to_stream(out);
+    strncpy(cstring, out.str().c_str(), n - 1);
+    cstring[n - 1] = '\0';
 }
 
 
-void timers_reset()
+PROFILING_TIMERS_ATTR void timers_to_stdout()
+{
+    timers_to_stream(std::cout);
+}
+
+
+PROFILING_TIMERS_ATTR void timers_reset()
 {
     timers_collect();
     timers.clear();

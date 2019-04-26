@@ -99,7 +99,7 @@ TEST(TimersTest, CorrectUsage)
             }
         timer_toc("for loop");
 
-        timers_report();
+        timers_to_stdout();
     });
 
     timers_reset();
@@ -133,7 +133,7 @@ TEST(TimersTest, CorrectUsageLongLabels)
         timer_toc("label3");
     });
 
-    timers_report();
+    timers_to_stdout();
     timers_reset();
 
     ASSERT_NO_THROW(
@@ -160,7 +160,7 @@ TEST(TimersTest, CorrectUsageLongLabels)
         timer_toc("label3");
     });
 
-    timers_report();
+    timers_to_stdout();
     timers_reset();
 }
 
@@ -171,7 +171,7 @@ TEST(TimersTest, NothingToReport)
     ASSERT_NO_THROW(
     {
         timers_reset();
-        timers_report();
+        timers_to_stdout();
     });
 }
 
@@ -209,7 +209,7 @@ TEST(TimersTest, FailNotYetStopped)
     {
         timer_tic("label1");
             sleep(200.0);
-        timers_report();
+        timers_to_stdout();
     }, std::runtime_error);
 
     timers_reset();
@@ -227,7 +227,7 @@ TEST(TimersTest, FailNotNested)
         timer_toc("label5");
             timer_toc("label6");
 
-        timers_report();
+        timers_to_stdout();
     }, std::runtime_error);
 
     timers_reset();
@@ -268,7 +268,7 @@ TEST(ThreadedTimersTest, CorrectUsageManualThreads)
 
     timer_toc("top level");
 
-    timers_report();
+    timers_to_stdout();
 
     timers_reset();
 }
@@ -304,7 +304,31 @@ TEST(ThreadedTimersTest, CorrectUsageOpenMP)
 
     timer_toc("top level");
 
-    timers_report();
+    timers_to_stdout();
 
     timers_reset();
+}
+
+
+TEST(C_API, cstream)
+{
+    using namespace profile_timers;
+
+    ASSERT_NO_THROW(
+    {
+        timer_tic("label1");
+            sleep(200.0);
+        timer_toc("label1");
+    });
+
+    const size_t n1 = 5;
+    char short_timer_report[n1];
+    timers_to_cstring( short_timer_report, n1);
+    std::cout << "***\n" << short_timer_report << "\n***\n";
+    EXPECT_TRUE(std::string("Coll") == short_timer_report);
+
+    const size_t n2 = 1000;
+    char long_timer_report[n2];
+    timers_to_cstring( long_timer_report, n2);
+    std::cout << "***\n" << long_timer_report << "\n***\n";
 }
