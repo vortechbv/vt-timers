@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef PROFILING_TIMERS_H
-#define PROFILING_TIMERS_H
+#ifndef VT_TIMERS_HPP
+#define VT_TIMERS_HPP
 
 #include <chrono>
 #include <map>
 
-#ifndef PROFILING_TIMERS_ATTR
-#define PROFILING_TIMERS_ATTR
+#ifndef VT_TIMERS_ATTR
+#define VT_TIMERS_ATTR
 #endif
 
 
@@ -63,23 +63,23 @@ private:
 
 // C++ API
 
-PROFILING_TIMERS_ATTR void timers_to_stream(std::ostream& stream);
+VT_TIMERS_ATTR void timers_to_stream(std::ostream& stream);
 
-PROFILING_TIMERS_ATTR std::string timers_to_string();
+VT_TIMERS_ATTR std::string timers_to_string();
 
 // C API
 
-PROFILING_TIMERS_ATTR void timer_tic(const char* name);
+VT_TIMERS_ATTR void timer_tic(const char* name);
 
-PROFILING_TIMERS_ATTR void timer_toc(const char* name);
+VT_TIMERS_ATTR void timer_toc(const char* name);
 
-PROFILING_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n);
+VT_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n);
 
-PROFILING_TIMERS_ATTR void timers_to_stdout();
+VT_TIMERS_ATTR void timers_to_stdout();
 
-PROFILING_TIMERS_ATTR void timers_reset();
+VT_TIMERS_ATTR void timers_reset();
 
 
 }
 
-#endif // PROFILING_TIMERS_H
+#endif // VT_TIMERS_HPP

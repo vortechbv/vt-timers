@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/martinusbach/vt-timers.svg?branch=master)](https://travis-ci.org/martinusbach/vt-timers)
 [![Build status](https://ci.appveyor.com/api/projects/status/56wbff12087v5el4/branch/master?svg=true)](https://ci.appveyor.com/project/martinusbach/vt-timers/branch/master)
 
-Profiling timers
-================
+vt_timers
+=========
 
 General description
 -------------------
@@ -14,7 +14,7 @@ Building
 --------
 
 - Build with `CMake`.
-- Contains tests based on `google test`, which is downloaded automatically during CMake generation time. Test targets and google test framework are only built if `PROFILING_TIMERS_ENABLE_TESTS` is switched `ON`.
+- Contains tests based on `google test`, which is downloaded automatically during CMake generation time. Test targets and google test framework are only built if `VT_TIMERS_ENABLE_TESTS` is switched `ON`.
 - Requires a C++11 compiler. Tested with Visual Studio 2015 and GCC under linux. Compiles with MinGW, but crashes, see below.
 
 

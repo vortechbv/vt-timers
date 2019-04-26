@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "profiling_timers.h"
+#include <vt/timers.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -213,7 +213,7 @@ std::string Timer::tree_string(const std::string& name, const size_t level, cons
 }
 
 
-PROFILING_TIMERS_ATTR void timer_tic(const char* name)
+VT_TIMERS_ATTR void timer_tic(const char* name)
 {
     if (current_level == nullptr) {
         current_level = &toplevel;
@@ -231,7 +231,7 @@ PROFILING_TIMERS_ATTR void timer_tic(const char* name)
 }
 
 
-PROFILING_TIMERS_ATTR void timer_toc(const char* name)
+VT_TIMERS_ATTR void timer_toc(const char* name)
 {
     if (current_level == nullptr)
         throw std::runtime_error("No started timers available!");
@@ -269,7 +269,7 @@ static void timers_collect()
 }
 
 
-PROFILING_TIMERS_ATTR void timers_to_stream(std::ostream& out)
+VT_TIMERS_ATTR void timers_to_stream(std::ostream& out)
 {
     if (current_level != &toplevel && current_level != nullptr)
         throw std::runtime_error("Not all timers have been stopped!");
@@ -315,7 +315,7 @@ PROFILING_TIMERS_ATTR void timers_to_stream(std::ostream& out)
 }
 
 
-PROFILING_TIMERS_ATTR std::string timers_to_string()
+VT_TIMERS_ATTR std::string timers_to_string()
 {
     std::stringstream out;
     timers_to_stream(out);
@@ -323,7 +323,7 @@ PROFILING_TIMERS_ATTR std::string timers_to_string()
 }
 
 
-PROFILING_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n)
+VT_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n)
 {
     std::stringstream out;
     timers_to_stream(out);
@@ -332,13 +332,13 @@ PROFILING_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n)
 }
 
 
-PROFILING_TIMERS_ATTR void timers_to_stdout()
+VT_TIMERS_ATTR void timers_to_stdout()
 {
     timers_to_stream(std::cout);
 }
 
 
-PROFILING_TIMERS_ATTR void timers_reset()
+VT_TIMERS_ATTR void timers_reset()
 {
     timers_collect();
     timers.clear();
