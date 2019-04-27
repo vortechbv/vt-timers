@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <vt/timers.hpp>
+#include <vt/timers.h>
 
 #include <gtest/gtest.h>
 
@@ -27,6 +28,7 @@
 #include <chrono>
 
 #include <omp.h>
+
 
 void sleep(const double milliseconds)
 {
@@ -43,200 +45,184 @@ void sleep(const double milliseconds)
 
 TEST(TimersTest, CorrectUsage)
 {
-    using namespace profile_timers;
-
     ASSERT_NO_THROW(
     {
-        timer_tic("label1");
+        vt_timer_tic("label1");
             sleep(200.0);
-        timer_toc("label1");
+        vt_timer_toc("label1");
 
-        timer_tic("label2");
+        vt_timer_tic("label2");
             sleep(100.0);
-        timer_toc("label2");
+        vt_timer_toc("label2");
 
 
-        timer_tic("label3");
+        vt_timer_tic("label3");
 
             sleep(100.0);
 
-            timer_tic("label4");
+            vt_timer_tic("label4");
 
                 sleep(50.0);
 
-                timer_tic("label 5");
+                vt_timer_tic("label 5");
                     sleep(10.0);
-                timer_toc("label 5");
+                vt_timer_toc("label 5");
 
-                timer_tic("label 6");
+                vt_timer_tic("label 6");
                     sleep(10.0);
-                timer_toc("label 6");
+                vt_timer_toc("label 6");
 
-            timer_toc("label4");
+            vt_timer_toc("label4");
 
-            timer_tic("label4");
+            vt_timer_tic("label4");
 
                 sleep(50.0);
 
-                timer_tic("label 5");
+                vt_timer_tic("label 5");
                     sleep(10.0);
-                timer_toc("label 5");
+                vt_timer_toc("label 5");
 
-                timer_tic("label 6");
+                vt_timer_tic("label 6");
                     sleep(10.0);
-                timer_toc("label 6");
+                vt_timer_toc("label 6");
 
-            timer_toc("label4");
+            vt_timer_toc("label4");
 
-        timer_toc("label3");
+        vt_timer_toc("label3");
 
-        timer_tic("for loop");
+        vt_timer_tic("for loop");
             for (size_t i = 0; i < 100; ++i)
             {
-                timer_tic("inner iteration");
+                vt_timer_tic("inner iteration");
                 sleep(10.0);
-                timer_toc("inner iteration");
+                vt_timer_toc("inner iteration");
             }
-        timer_toc("for loop");
+        vt_timer_toc("for loop");
 
-        timers_to_stdout();
+        vt_timers_to_stdout();
     });
 
-    timers_reset();
+    vt_timers_reset();
 }
 
 TEST(TimersTest, CorrectUsageLongLabels)
 {
-    using namespace profile_timers;
+    ASSERT_NO_THROW(
+    {
+        vt_timer_tic("a very very very very long label1");
+            sleep(200.0);
+        vt_timer_toc("a very very very very long label1");
+
+        vt_timer_tic("label2");
+            sleep(100.0);
+        vt_timer_toc("label2");
+
+        vt_timer_tic("label3");
+            sleep(100.0);
+            vt_timer_tic("label4");
+                sleep(50.0);
+                vt_timer_tic("label 5");
+                    sleep(10.0);
+                vt_timer_toc("label 5");
+                vt_timer_tic("label 6");
+                    sleep(10.0);
+                vt_timer_toc("label 6");
+            vt_timer_toc("label4");
+        vt_timer_toc("label3");
+    });
+
+    vt_timers_to_stdout();
+    vt_timers_reset();
 
     ASSERT_NO_THROW(
     {
-        timer_tic("a very very very very long label1");
+        vt_timer_tic("label1");
             sleep(200.0);
-        timer_toc("a very very very very long label1");
+        vt_timer_toc("label1");
 
-        timer_tic("label2");
+        vt_timer_tic("label2");
             sleep(100.0);
-        timer_toc("label2");
+        vt_timer_toc("label2");
 
-        timer_tic("label3");
+        vt_timer_tic("label3");
             sleep(100.0);
-            timer_tic("label4");
+            vt_timer_tic("label4");
                 sleep(50.0);
-                timer_tic("label 5");
+                vt_timer_tic("a very very very very long label 5");
                     sleep(10.0);
-                timer_toc("label 5");
-                timer_tic("label 6");
+                vt_timer_toc("a very very very very long label 5");
+                vt_timer_tic("label 6");
                     sleep(10.0);
-                timer_toc("label 6");
-            timer_toc("label4");
-        timer_toc("label3");
+                vt_timer_toc("label 6");
+            vt_timer_toc("label4");
+        vt_timer_toc("label3");
     });
 
-    timers_to_stdout();
-    timers_reset();
-
-    ASSERT_NO_THROW(
-    {
-        timer_tic("label1");
-            sleep(200.0);
-        timer_toc("label1");
-
-        timer_tic("label2");
-            sleep(100.0);
-        timer_toc("label2");
-
-        timer_tic("label3");
-            sleep(100.0);
-            timer_tic("label4");
-                sleep(50.0);
-                timer_tic("a very very very very long label 5");
-                    sleep(10.0);
-                timer_toc("a very very very very long label 5");
-                timer_tic("label 6");
-                    sleep(10.0);
-                timer_toc("label 6");
-            timer_toc("label4");
-        timer_toc("label3");
-    });
-
-    timers_to_stdout();
-    timers_reset();
+    vt_timers_to_stdout();
+    vt_timers_reset();
 }
 
 TEST(TimersTest, NothingToReport)
 {
-    using namespace profile_timers;
-
     ASSERT_NO_THROW(
     {
-        timers_reset();
-        timers_to_stdout();
+        vt_timers_reset();
+        vt_timers_to_stdout();
     });
 }
 
 TEST(TimersTest, FailWrongLabel)
 {
-    using namespace profile_timers;
-
     ASSERT_THROW(
     {
-        timer_tic("label1");
+        vt_timer_tic("label1");
             sleep(200.0);
-        timer_toc("label2");
+        vt_timer_toc("label2");
     }, std::runtime_error);
 
-    timers_reset();
+    vt_timers_reset();
 }
 
 TEST(TimersTest, FailNotStarted)
 {
-    using namespace profile_timers;
-
     ASSERT_THROW(
     {
-        timer_toc("label2");
+        vt_timer_toc("label2");
     }, std::runtime_error);
 
-    timers_reset();
+    vt_timers_reset();
 }
 
 TEST(TimersTest, FailNotYetStopped)
 {
-    using namespace profile_timers;
-
     ASSERT_THROW(
     {
-        timer_tic("label1");
+        vt_timer_tic("label1");
             sleep(200.0);
-        timers_to_stdout();
+        vt_timers_to_stdout();
     }, std::runtime_error);
 
-    timers_reset();
+    vt_timers_reset();
 }
 
 TEST(TimersTest, FailNotNested)
 {
-    using namespace profile_timers;
-
     ASSERT_THROW(
     {
         // Should this be allowed? Probably not...
-        timer_tic("label5");
-            timer_tic("label6");
-        timer_toc("label5");
-            timer_toc("label6");
+        vt_timer_tic("label5");
+            vt_timer_tic("label6");
+        vt_timer_toc("label5");
+            vt_timer_toc("label6");
 
-        timers_to_stdout();
+        vt_timers_to_stdout();
     }, std::runtime_error);
 
-    timers_reset();
+    vt_timers_reset();
 }
 
 static void thread(const int i)
 {
-    using namespace profile_timers;
-
     std::stringstream ss;
     ss << "thread " << i;
 
@@ -244,16 +230,14 @@ static void thread(const int i)
     if (verbose)
         std::cout << "Hello from " << ss.str() << " with thread id " << std::this_thread::get_id() << ".\n";
 
-    timer_tic(ss.str().c_str());
+    vt_timer_tic(ss.str().c_str());
         sleep(250.0);
-    timer_toc(ss.str().c_str());
+    vt_timer_toc(ss.str().c_str());
 }
 
 TEST(ThreadedTimersTest, CorrectUsageManualThreads)
 {
-    using namespace profile_timers;
-
-    timer_tic("top level");
+    vt_timer_tic("top level");
 
     size_t n_threads = 16;
     std::vector<std::thread> threads(n_threads);
@@ -263,22 +247,20 @@ TEST(ThreadedTimersTest, CorrectUsageManualThreads)
     for (size_t i = 0; i < n_threads; ++i)
         threads[i].join();
 
-    timer_tic("some more work");
-    timer_toc("some more work");
+    vt_timer_tic("some more work");
+    vt_timer_toc("some more work");
 
-    timer_toc("top level");
+    vt_timer_toc("top level");
 
-    timers_to_stdout();
+    vt_timers_to_stdout();
 
-    timers_reset();
+    vt_timers_reset();
 }
 
 
 TEST(ThreadedTimersTest, CorrectUsageOpenMP)
 {
-    using namespace profile_timers;
-
-    timer_tic("top level");
+    vt_timer_tic("top level");
 
     int n_iterations = 100;
     bool verbose = false;
@@ -294,41 +276,39 @@ TEST(ThreadedTimersTest, CorrectUsageOpenMP)
             std::cout << ss.str();
         }
 
-        timer_tic("inside omp loop");
+        vt_timer_tic("inside omp loop");
             sleep(50.0);
-        timer_toc("inside omp loop");
+        vt_timer_toc("inside omp loop");
     }
 
-    timer_tic("some more work");
-    timer_toc("some more work");
+    vt_timer_tic("some more work");
+    vt_timer_toc("some more work");
 
-    timer_toc("top level");
+    vt_timer_toc("top level");
 
-    timers_to_stdout();
+    vt_timers_to_stdout();
 
-    timers_reset();
+    vt_timers_reset();
 }
 
 
 TEST(C_API, cstream)
 {
-    using namespace profile_timers;
-
     ASSERT_NO_THROW(
     {
-        timer_tic("label1");
+        vt_timer_tic("label1");
             sleep(200.0);
-        timer_toc("label1");
+        vt_timer_toc("label1");
     });
 
     const size_t n1 = 5;
     char short_timer_report[n1];
-    timers_to_cstring( short_timer_report, n1);
+    vt_timers_to_cstring( short_timer_report, n1);
     std::cout << "***\n" << short_timer_report << "\n***\n";
     EXPECT_TRUE(std::string("Coll") == short_timer_report);
 
     const size_t n2 = 1000;
     char long_timer_report[n2];
-    timers_to_cstring( long_timer_report, n2);
+    vt_timers_to_cstring( long_timer_report, n2);
     std::cout << "***\n" << long_timer_report << "\n***\n";
 }

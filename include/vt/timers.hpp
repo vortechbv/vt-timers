@@ -29,8 +29,7 @@
 #endif
 
 
-namespace profile_timers
-{
+namespace vt {
 
 class Timer
 {
@@ -61,25 +60,10 @@ private:
 };
 
 
-// C++ API
-
 VT_TIMERS_ATTR void timers_to_stream(std::ostream& stream);
 
 VT_TIMERS_ATTR std::string timers_to_string();
 
-// C API
+}  // namespace vt
 
-VT_TIMERS_ATTR void timer_tic(const char* name);
-
-VT_TIMERS_ATTR void timer_toc(const char* name);
-
-VT_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n);
-
-VT_TIMERS_ATTR void timers_to_stdout();
-
-VT_TIMERS_ATTR void timers_reset();
-
-
-}
-
-#endif // VT_TIMERS_HPP
+#endif  // VT_TIMERS_HPP

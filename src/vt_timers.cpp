@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #include <vt/timers.hpp>
+#include <vt/timers.h>
 
 #include <chrono>
 #include <iostream>
@@ -34,8 +35,7 @@
 
 #include <omp.h>
 
-namespace profile_timers
-{
+namespace vt {
 
 // Note: statics are destructed after thread_locals, according to the standard.
 
@@ -213,43 +213,6 @@ std::string Timer::tree_string(const std::string& name, const size_t level, cons
 }
 
 
-VT_TIMERS_ATTR void timer_tic(const char* name)
-{
-    if (current_level == nullptr) {
-        current_level = &toplevel;
-        toplevel.start();
-    }
-
-    Timer& timer = current_level->new_or_existing_child(name);
-    if (timer.is_running())
-        throw std::runtime_error("Timer is already running!");
-
-    timer.parent_ = current_level;
-    current_level = &timer;
-
-    timer.start();
-}
-
-
-VT_TIMERS_ATTR void timer_toc(const char* name)
-{
-    if (current_level == nullptr)
-        throw std::runtime_error("No started timers available!");
-
-    Timer* timer = current_level;
-    timer->stop();
-
-    current_level = current_level->parent_;
-
-    bool check_name = true;
-    if (check_name && ! current_level->has_timer_with_name(name)) {
-        std::stringstream ss;
-        ss << "Timer with name '" << name << "' does not exist, so cannot be stopped!\n";
-        throw std::runtime_error(ss.str());
-    }
-}
-
-
 static void timers_collect()
 {
     // Retrieve timers from main thread, also for sequential code
@@ -322,28 +285,73 @@ VT_TIMERS_ATTR std::string timers_to_string()
     return out.str();
 }
 
+}  // namespace vt
 
-VT_TIMERS_ATTR void timers_to_cstring(char* cstring, const size_t n)
+
+
+
+
+VT_TIMERS_ATTR void vt_timer_tic(const char* name)
+{
+    using namespace vt;
+
+    if (current_level == nullptr) {
+        current_level = &toplevel;
+        toplevel.start();
+    }
+
+    Timer& timer = current_level->new_or_existing_child(name);
+    if (timer.is_running())
+        throw std::runtime_error("Timer is already running!");
+
+    timer.parent_ = current_level;
+    current_level = &timer;
+
+    timer.start();
+}
+
+
+VT_TIMERS_ATTR void vt_timer_toc(const char* name)
+{
+    using namespace vt;
+
+    if (current_level == nullptr)
+        throw std::runtime_error("No started timers available!");
+
+    Timer* timer = current_level;
+    timer->stop();
+
+    current_level = current_level->parent_;
+
+    bool check_name = true;
+    if (check_name && ! current_level->has_timer_with_name(name)) {
+        std::stringstream ss;
+        ss << "Timer with name '" << name << "' does not exist, so cannot be stopped!\n";
+        throw std::runtime_error(ss.str());
+    }
+}
+
+
+VT_TIMERS_ATTR void vt_timers_to_cstring(char* cstring, const size_t n)
 {
     std::stringstream out;
-    timers_to_stream(out);
+    vt::timers_to_stream(out);
     strncpy(cstring, out.str().c_str(), n - 1);
     cstring[n - 1] = '\0';
 }
 
 
-VT_TIMERS_ATTR void timers_to_stdout()
+VT_TIMERS_ATTR void vt_timers_to_stdout()
 {
-    timers_to_stream(std::cout);
+    vt::timers_to_stream(std::cout);
 }
 
 
-VT_TIMERS_ATTR void timers_reset()
+VT_TIMERS_ATTR void vt_timers_reset()
 {
+    using namespace vt;
+
     timers_collect();
     timers.clear();
     current_level = nullptr;
 }
-
-}
-
