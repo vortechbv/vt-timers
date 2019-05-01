@@ -20,6 +20,7 @@
 
 #include <vt/timers.hpp>
 #include <vt/timers.h>
+#include <vt/error_handling.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -82,7 +83,7 @@ void Timer::reset()
 
     is_running_ = false;
     children_.clear();
-     parent_ = nullptr;
+    parent_ = nullptr;
     wall_time_ = duration<double>(0.0);
     cpu_time_ = duration<double>(0.0);
     nr_calls_ = 0;
@@ -285,13 +286,12 @@ VT_TIMERS_ATTR std::string timers_to_string()
     return out.str();
 }
 
+
 }  // namespace vt
 
 
 
-
-
-VT_TIMERS_ATTR void vt_timer_tic(const char* name)
+VT_C_API vtErrorCode VT_C_CALLCONV vt_timer_tic(const char* name) VT_EXCEPT_TO_ERRORCODE(
 {
     using namespace vt;
 
@@ -308,50 +308,68 @@ VT_TIMERS_ATTR void vt_timer_tic(const char* name)
     current_level = &timer;
 
     timer.start();
-}
+
+    return vtOK;
+})
 
 
-VT_TIMERS_ATTR void vt_timer_toc(const char* name)
+VT_C_API vtErrorCode VT_C_CALLCONV vt_timer_toc(const char* name) VT_EXCEPT_TO_ERRORCODE(
 {
     using namespace vt;
 
-    if (current_level == nullptr)
+    if (current_level == nullptr) {
         throw std::runtime_error("No started timers available!");
+    }
+
+    bool check_name = true;
+    if (check_name) {
+        if (current_level->parent_ == nullptr ||
+                ! current_level->parent_->has_timer_with_name(name)) {
+            std::stringstream ss;
+            ss << "Timer with name '" << name << "' does not exist, so cannot be stopped!\n";
+            throw std::runtime_error(ss.str());
+        }
+    }
 
     Timer* timer = current_level;
     timer->stop();
 
     current_level = current_level->parent_;
 
-    bool check_name = true;
-    if (check_name && ! current_level->has_timer_with_name(name)) {
-        std::stringstream ss;
-        ss << "Timer with name '" << name << "' does not exist, so cannot be stopped!\n";
-        throw std::runtime_error(ss.str());
-    }
-}
+    return vtOK;
+})
 
 
-VT_TIMERS_ATTR void vt_timers_to_cstring(char* cstring, const size_t n)
+VT_C_API vtErrorCode VT_C_CALLCONV vt_timers_to_cstring(char* cstring, const size_t n) VT_EXCEPT_TO_ERRORCODE(
 {
+    using namespace vt;
+
     std::stringstream out;
-    vt::timers_to_stream(out);
+    timers_to_stream(out);
     strncpy(cstring, out.str().c_str(), n - 1);
     cstring[n - 1] = '\0';
-}
+
+    return vtOK;
+})
 
 
-VT_TIMERS_ATTR void vt_timers_to_stdout()
+VT_C_API vtErrorCode VT_C_CALLCONV vt_timers_to_stdout() VT_EXCEPT_TO_ERRORCODE(
 {
-    vt::timers_to_stream(std::cout);
-}
+    using namespace vt;
+
+    timers_to_stream(std::cout);
+
+    return vtOK;
+})
 
 
-VT_TIMERS_ATTR void vt_timers_reset()
+VT_C_API vtErrorCode VT_C_CALLCONV vt_timers_reset() VT_EXCEPT_TO_ERRORCODE(
 {
     using namespace vt;
 
     timers_collect();
     timers.clear();
     current_level = nullptr;
-}
+
+    return vtOK;
+})

@@ -21,12 +21,10 @@
 #ifndef VT_TIMERS_HPP
 #define VT_TIMERS_HPP
 
+#include <vt/timers.h>
+
 #include <chrono>
 #include <map>
-
-#ifndef VT_TIMERS_ATTR
-#define VT_TIMERS_ATTR
-#endif
 
 
 namespace vt {
@@ -63,6 +61,7 @@ private:
 VT_TIMERS_ATTR void timers_to_stream(std::ostream& stream);
 
 VT_TIMERS_ATTR std::string timers_to_string();
+
 
 }  // namespace vt
 

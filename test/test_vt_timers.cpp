@@ -173,50 +173,69 @@ TEST(TimersTest, NothingToReport)
 
 TEST(TimersTest, FailWrongLabel)
 {
-    ASSERT_THROW(
+    vtErrorCode err1, err2;
+    ASSERT_NO_THROW(
     {
-        vt_timer_tic("label1");
+        err1 = vt_timer_tic("label1");
             sleep(200.0);
-        vt_timer_toc("label2");
-    }, std::runtime_error);
+        err2 = vt_timer_toc("label2");
+    });
+
+    EXPECT_EQ(err1, vtOK);
+    EXPECT_EQ(err2, vtERROR);
 
     vt_timers_reset();
 }
 
 TEST(TimersTest, FailNotStarted)
 {
-    ASSERT_THROW(
+    ASSERT_NO_THROW(
     {
-        vt_timer_toc("label2");
-    }, std::runtime_error);
+        vtErrorCode err = vt_timer_toc("label2");
+        EXPECT_EQ(err, vtERROR);
+    });
 
     vt_timers_reset();
 }
 
 TEST(TimersTest, FailNotYetStopped)
 {
-    ASSERT_THROW(
+    ASSERT_NO_THROW(
     {
-        vt_timer_tic("label1");
+        vtErrorCode err1 = vt_timer_tic("label1");
             sleep(200.0);
-        vt_timers_to_stdout();
-    }, std::runtime_error);
+        vtErrorCode err2 = vt_timers_to_stdout();
+
+        EXPECT_EQ(err1, vtOK);
+        EXPECT_EQ(err2, vtERROR);
+    });
+
 
     vt_timers_reset();
 }
 
 TEST(TimersTest, FailNotNested)
 {
-    ASSERT_THROW(
+    ASSERT_NO_THROW(
     {
-        // Should this be allowed? Probably not...
-        vt_timer_tic("label5");
-            vt_timer_tic("label6");
-        vt_timer_toc("label5");
-            vt_timer_toc("label6");
+        vtErrorCode err;
 
-        vt_timers_to_stdout();
-    }, std::runtime_error);
+        // Should this be allowed? Probably not...
+        err = vt_timer_tic("label5");
+        EXPECT_EQ(err, vtOK);
+
+            err = vt_timer_tic("label6");
+            EXPECT_EQ(err, vtOK);
+
+        err = vt_timer_toc("label5");
+        EXPECT_EQ(err, vtERROR);
+
+            err = vt_timer_toc("label6");
+            EXPECT_EQ(err, vtOK);
+
+        err = vt_timers_to_stdout();
+        EXPECT_EQ(err, vtERROR);
+    });
 
     vt_timers_reset();
 }
