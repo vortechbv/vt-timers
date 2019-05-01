@@ -24,4 +24,5 @@ build*
 .directory
 *.sw*
 .*.kate-swp
+CMakeLists.txt.user
 

@@ -10,7 +10,7 @@ namespace vt {
 extern std::string last_error_message_;
 extern vtErrorCode last_error_code_;
 
-inline const std::string& last_error_message()
+VT_TIMERS_ATTR inline const std::string& last_error_message()
 {
     return last_error_message_;
 }
