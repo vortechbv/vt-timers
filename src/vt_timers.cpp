@@ -326,7 +326,7 @@ VT_C_API vtErrorCode VT_C_CALLCONV vt_timer_toc(const char* name) VT_EXCEPT_TO_E
         if (current_level->parent_ == nullptr ||
                 ! current_level->parent_->has_timer_with_name(name)) {
             std::stringstream ss;
-            ss << "Timer with name '" << name << "' does not exist, so cannot be stopped!\n";
+            ss << "Timer with name '" << name << "' does not exist, so cannot be stopped!";
             throw std::runtime_error(ss.str());
         }
     }

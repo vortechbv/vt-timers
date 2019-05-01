@@ -7,6 +7,16 @@
 
 namespace vt {
 
+extern std::string last_error_message_;
+extern vtErrorCode last_error_code_;
+
+inline const std::string& last_error_message()
+{
+    return last_error_message_;
+}
+// Note: See timers.h for similar C API functions.
+
+
 /**
  * A function that catches any exceptions and converts them into an
  * error code. This can be used to ensure that no exceptions pass through the
@@ -26,12 +36,15 @@ vtErrorCode except_to_errcode(Lambda&& body)
     }
     catch (const std::exception& ex)
     {
-        std::cerr << ex.what();
-        return vtERROR;
+        last_error_message_ = ex.what();
+        last_error_code_ = vtERROR;
+        return last_error_code_;
     }
     catch (...)
     {
-        return vtERROR;
+        last_error_message_ = "Unknown exception was triggered.";
+        last_error_code_ = vtERROR;
+        return last_error_code_;
     }
 }
 

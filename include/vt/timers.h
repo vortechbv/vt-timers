@@ -28,6 +28,10 @@ typedef enum vtErrorCodes {
     vtERROR = 2
 } vtErrorCode;
 
+VT_C_API void VT_C_CALLCONV vt_last_error_message(char* cstring, const size_t n);
+
+VT_C_API vtErrorCode VT_C_CALLCONV vt_last_error_code();
+
 
 VT_C_API vtErrorCode VT_C_CALLCONV vt_timer_tic(const char* name);
 
@@ -39,4 +43,4 @@ VT_C_API vtErrorCode VT_C_CALLCONV vt_timers_to_stdout();
 
 VT_C_API vtErrorCode VT_C_CALLCONV vt_timers_reset();
 
-#endif  // VT_TIMERS_H
+#endif  /* VT_TIMERS_H */

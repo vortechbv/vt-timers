@@ -65,7 +65,8 @@ if(MSVC)
 endif()
 
 add_library(vt_timers SHARED
-    "src/vt_timers.cpp")
+    "src/vt_timers.cpp"
+    "src/error_handling.cpp")
 set_target_properties(vt_timers PROPERTIES DEBUG_POSTFIX "d")
 target_compile_definitions(
     vt_timers

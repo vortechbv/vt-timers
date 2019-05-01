@@ -30,14 +30,13 @@ Suggestions for future work
 - compute 'other' time (non-labeled remaining time within a Timer scope)
 - include cpu time (user, other)
 - aggregate timers from different threads
-- add possibility to send report to ostream
 - add a scoped timer, to ensure exception safety
 - reconsider the use of `std::map` (e.g. is `std::unordered_map` better? should we build our own data structure based on indices instead of key-value pairs based on strings?)
-- does it work with other compilers?
+- does it work with other compilers, e.g. Clang?
 - does it work with pthreads?
 - add option to disable all timer function calls (e.g. via a preprocessor define that may or may not include `#if 0`)
+- add option to disable all error checking code (e.g. via a preprocessor define)
 - ensure correct workings with shared libraries (in view of `static` and `static thread_local` usage)
-- define proper C-interface
 - add fortran interface
 - use python to visualize a timing report
 - suggestion: if we encouter problems, it may be useful to consider omp threadlocal variables.

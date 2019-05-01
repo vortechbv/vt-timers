@@ -20,6 +20,7 @@
 
 #include <vt/timers.hpp>
 #include <vt/timers.h>
+#include <vt/error_handling.hpp>
 
 #include <gtest/gtest.h>
 
@@ -183,6 +184,14 @@ TEST(TimersTest, FailWrongLabel)
 
     EXPECT_EQ(err1, vtOK);
     EXPECT_EQ(err2, vtERROR);
+
+    const size_t n = 10;
+    char message[n];
+    vt_last_error_message(message, n);
+    EXPECT_STREQ("Timer wit", message);
+
+    const std::string& cpp_message = vt::last_error_message();
+    EXPECT_EQ(cpp_message, std::string("Timer with name 'label2' does not exist, so cannot be stopped!"));
 
     vt_timers_reset();
 }
