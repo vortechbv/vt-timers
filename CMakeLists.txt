@@ -1,4 +1,4 @@
-# Copyright (c) 2019 VORtech b.v.
+# Copyright (c) 2019-2020 VORtech b.v.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,14 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(vt_timers CXX)
+
+
+### User options
+
+option(
+    VT_TIMERS_BUILD_SHARED_LIBS
+    "Build shared vt-timers libraries (.so/.dll); overwrites CMake's BUILD_SHARED_LIBS"
+    ON)
 
 
 ### Compile options
@@ -59,12 +67,18 @@ set(VT_TIMERS_MSVC_COMPILE_OPTIONS
 
 ### vt_timers shared library
 
-if(MSVC)
+if(MSVC AND VT_TIMERS_BUILD_SHARED_LIBS)
     set(VT_TIMERS_IMPORT_DEFINES "-DVT_TIMERS_ATTR=__declspec(dllimport)")
     set(VT_TIMERS_EXPORT_DEFINES "-DVT_TIMERS_ATTR=__declspec(dllexport)")
 endif()
 
-add_library(vt_timers SHARED
+if(VT_TIMERS_BUILD_SHARED_LIBS)
+    set(VT_TIMERS_LIB_TYPE SHARED)
+else()
+    set(VT_TIMERS_LIB_TYPE STATIC)
+endif()
+
+add_library(vt_timers ${VT_TIMERS_LIB_TYPE}
     "src/vt_timers.cpp"
     "src/error_handling.cpp")
 set_target_properties(vt_timers PROPERTIES DEBUG_POSTFIX "d")
