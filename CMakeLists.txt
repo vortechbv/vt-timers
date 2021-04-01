@@ -20,7 +20,9 @@
 
 cmake_minimum_required(VERSION 3.9)
 
-project(vt_timers CXX)
+project(vt_timers CXX Fortran)
+
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none  -fopenmp -g ") 
 
 
 ### User options
@@ -79,6 +81,7 @@ else()
 endif()
 
 add_library(vt_timers ${VT_TIMERS_LIB_TYPE}
+    "src/vt_timers.f90"
     "src/vt_timers.cpp"
     "src/error_handling.cpp")
 set_target_properties(vt_timers PROPERTIES DEBUG_POSTFIX "d")
@@ -116,7 +119,13 @@ option(VT_TIMERS_ENABLE_TESTS "Enable the compilation of tests for timers librar
 if (VT_TIMERS_ENABLE_TESTS)
 
     # Test executable
+    add_executable(test_correct_usage.exe
+        "test/sleep.cpp"
+        "test/test_correct_usage.f90")
+    target_link_libraries(test_correct_usage.exe vt_timers)
+
     add_executable(vt_timers_test
+        "test/sleep.cpp"
         "test/test_vt_timers.cpp"
         "test/test_main.cpp")
     target_link_libraries(vt_timers_test
