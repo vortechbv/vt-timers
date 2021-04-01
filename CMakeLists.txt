@@ -20,12 +20,15 @@
 
 cmake_minimum_required(VERSION 3.9)
 
-project(vt_timers CXX Fortran)
+project(vt_timers CXX)
 
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none  -fopenmp -g ") 
 
 
 ### User options
+option(
+    VT_TIMERS_BUILD_Fortran_LIBS
+    "Build vt_fortran_timers library (.so/.dll) to use vt-timers from Fortran"
+    ON)
 
 option(
     VT_TIMERS_BUILD_SHARED_LIBS
@@ -81,7 +84,6 @@ else()
 endif()
 
 add_library(vt_timers ${VT_TIMERS_LIB_TYPE}
-    "src/vt_timers.f90"
     "src/vt_timers.cpp"
     "src/error_handling.cpp")
 set_target_properties(vt_timers PROPERTIES DEBUG_POSTFIX "d")
@@ -95,9 +97,21 @@ target_compile_options(
 target_include_directories(vt_timers
     PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include")
 
+if  (VT_TIMERS_BUILD_Fortran_LIBS) 
+    enable_language(Fortran)
+endif()
+
 find_package(OpenMP)
 if(OPENMP_FOUND)
     target_link_libraries(vt_timers OpenMP::OpenMP_CXX)
+endif()
+
+if (VT_TIMERS_BUILD_Fortran_LIBS) 
+    add_library(vt_fortran_timers ${VT_TIMERS_LIB_TYPE} "src/vt_timers.f90")
+    target_link_libraries(vt_fortran_timers vt_timers)
+    if(OPENMP_FOUND)
+        target_link_libraries(vt_fortran_timers OpenMP::OpenMP_Fortran)
+    endif()
 endif()
 
 
@@ -118,19 +132,22 @@ option(VT_TIMERS_ENABLE_TESTS "Enable the compilation of tests for timers librar
 
 if (VT_TIMERS_ENABLE_TESTS)
 
-    # Test executable
-    add_executable(test_correct_usage.exe
-        "test/sleep.cpp"
-        "test/test_correct_usage.f90")
-    target_link_libraries(test_correct_usage.exe vt_timers)
+    if (VT_TIMERS_BUILD_Fortran_LIBS) 
+        # Test executable
+        add_library(vt_fortran_test STATIC
+            "test/vt_fortran_test.f90")
+        target_link_libraries(vt_fortran_test vt_fortran_timers )
+    endif()
 
     add_executable(vt_timers_test
         "test/sleep.cpp"
         "test/test_vt_timers.cpp"
         "test/test_main.cpp")
-    target_link_libraries(vt_timers_test
-        vt_timers
-        gtest)
+    target_link_libraries(vt_timers_test vt_timers gtest)
+    if (VT_TIMERS_BUILD_Fortran_LIBS) 
+        target_compile_definitions(vt_timers_test PRIVATE -DVT_TIMERS_BUILD_FORTRAN_LIBS)  
+        target_link_libraries(vt_timers_test vt_fortran_test)
+    endif()
 
     # Download and unpack googletest at configure time
     configure_file(CMakeLists.txt.gtest googletest-download/CMakeLists.txt)

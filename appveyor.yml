@@ -31,7 +31,7 @@ init:
   - msbuild /version
 
 before_build:
-  - cmake . -G "%GENERATOR%" -DVT_TIMERS_ENABLE_TESTS=ON -DCMAKE_CXX_FLAGS="%CXX_FLAGS%" -DCMAKE_EXE_LINKER_FLAGS="%LINKER_FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin"
+  - cmake . -G "%GENERATOR%" -DVT_TIMERS_BUILD_Fortran_LIBS=OFF -DVT_TIMERS_ENABLE_TESTS=ON -DCMAKE_CXX_FLAGS="%CXX_FLAGS%" -DCMAKE_EXE_LINKER_FLAGS="%LINKER_FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin"
 
 build_script:
   - cmake --build . --config Release
