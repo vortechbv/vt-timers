@@ -43,7 +43,8 @@ public:
     Timer& new_or_existing_child(const std::string& name);
 
     size_t max_label_length_recursive() const;
-    std::string tree_string(const std::string& name, const size_t level, const size_t label_length) const;
+    std::string tree_string(const std::string& name, const size_t level, const size_t label_length, const double conversion) const;
+    double wall_time() const {return wall_time_.count();}
 
     Timer* parent_;
 
