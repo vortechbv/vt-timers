@@ -31,19 +31,6 @@
 #include <omp.h>
 
 
-void sleep(const double milliseconds)
-{
-    using namespace std::chrono;
-    auto t0 = high_resolution_clock::now();
-    duration<double> duration(0.0);
-    while (duration.count() < milliseconds / 1000.0)
-        duration = high_resolution_clock::now() - t0;
-
-//     //ALTERNATIVE:
-//     std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(milliseconds));
-}
-
-
 TEST(TimersTest, CorrectUsage)
 {
     ASSERT_NO_THROW(
@@ -319,24 +306,17 @@ TEST(ThreadedTimersTest, CorrectUsageOpenMP)
     vt_timers_reset();
 }
 
-
-TEST(C_API, cstream)
-{
-    ASSERT_NO_THROW(
+#ifdef VT_TIMERS_BUILD_FORTRAN_LIBS 
+    extern "C" int f_test_correct_usage();
+    extern "C" int f_correct_usage_omp();
+    
+    TEST(Fortran_API, CorrectUsage)
     {
-        vt_timer_tic("label1");
-            sleep(200.0);
-        vt_timer_toc("label1");
-    });
+        ASSERT_EQ(f_test_correct_usage(),vtOK);
+    }
 
-    const size_t n1 = 5;
-    char short_timer_report[n1];
-    vt_timers_to_cstring( short_timer_report, n1);
-    std::cout << "***\n" << short_timer_report << "\n***\n";
-    EXPECT_TRUE(std::string("Coll") == short_timer_report);
-
-    const size_t n2 = 1000;
-    char long_timer_report[n2];
-    vt_timers_to_cstring( long_timer_report, n2);
-    std::cout << "***\n" << long_timer_report << "\n***\n";
-}
+    TEST(Fortran_API, CorrectUsageOpenMP)
+    {
+        ASSERT_EQ(f_correct_usage_omp(),vtOK);
+    }
+#endif

@@ -43,6 +43,11 @@ namespace vt {
 // There is a global set of Timers, initially empty.
 static std::map<std::thread::id, Timer> timers;
 
+static const double ms_per_second  = 1000.,
+                    s_per_second   = 1.,
+                    min_per_second = 1./60.,
+                    hr_per_second = 1./60./60.;
+
 // Each thread first keeps its own set of Timers.
 static thread_local Timer toplevel;
 static thread_local Timer* current_level = nullptr;
@@ -158,7 +163,7 @@ size_t Timer::max_label_length_recursive() const
 }
 
 
-std::string Timer::tree_string(const std::string& name, const size_t level, const size_t label_length) const
+std::string Timer::tree_string(const std::string& name, const size_t level, const size_t label_length, const double conversion) const
 {
     std::stringstream out;
 
@@ -170,7 +175,7 @@ std::string Timer::tree_string(const std::string& name, const size_t level, cons
     std::stringstream nr_calls_ss;
     nr_calls_ss << "(" << nr_calls_ << ")";
     out << indent << std::setw(label_length) << std::left << name
-        << "  " << std::setw(8) << wall_time_.count() * 1000.0
+        << "  " << std::setw(8) << wall_time_.count() * conversion
         << std::setw(7) << nr_calls_ss.str() << "\n";
 
     // copy children into vector, since vector has a random access iterator that will be used by std::sort
@@ -189,7 +194,7 @@ std::string Timer::tree_string(const std::string& name, const size_t level, cons
     for (const auto& child : children) {
         const Timer& timer = child.second;
         const std::string& name = child.first;
-        out << timer.tree_string(name, level + 3, label_length);
+        out << timer.tree_string(name, level + 3, label_length,conversion);
     }
 
     // print remaining time
@@ -206,7 +211,7 @@ std::string Timer::tree_string(const std::string& name, const size_t level, cons
         if (other_time > threshold) {
             indent = std::string(level + 3, ' ');
             out << indent << std::setw(label_length) << std::left << "(other)"
-                << "  " << std::setw(8) << other_time.count() * 1000.0 << "\n";
+                << "  " << std::setw(8) << other_time.count() * conversion << "\n";
         }
     }
 
@@ -232,6 +237,18 @@ static void timers_collect()
     #pragma omp barrier  // necessary?
 }
 
+VT_TIMERS_ATTR double largest_time() 
+{
+    double retval = 0.0;
+    // All timers should be in static timers map
+    for (auto id_and_timer = timers.begin();
+         id_and_timer != timers.end();
+         ++id_and_timer)
+    {
+        retval = std::max(retval,id_and_timer->second.wall_time());
+    }
+    return retval;
+}
 
 VT_TIMERS_ATTR void timers_to_stream(std::ostream& out)
 {
@@ -245,10 +262,22 @@ VT_TIMERS_ATTR void timers_to_stream(std::ostream& out)
     }
 
     timers_collect();
+    const double large = largest_time();
+    const double conversion = 
+            large*ms_per_second  < 1000.0 ? ms_per_second 
+         :  large*s_per_second   < 1000.0 ? s_per_second  
+         :  large*min_per_second < 1000.0 ? min_per_second  
+         :  hr_per_second;
+    const char *unit = 
+            large*ms_per_second  < 1000.0 ? "ms"
+         :  large*s_per_second   < 1000.0 ? "s"
+         :  large*min_per_second < 1000.0 ? "min"
+         :  "hr";
+         
     out << "Collected timer info from " << timers.size()
         << " thread" << (timers.size() == 1 ? "" : "s") << "\n";
 
-    out << "Timing report: \n";
+    out << "Timing report, all times in ["<<unit<<"] : \n";
 
     std::thread::id main_thread_id = std::this_thread::get_id();
     // All timers should be in static timers map
@@ -274,7 +303,7 @@ VT_TIMERS_ATTR void timers_to_stream(std::ostream& out)
         size_t max_label_length = std::max(thread_id.size(), timer.max_label_length_recursive());
         size_t label_length = std::max(min_label_length, max_label_length);
 
-        out << timer.tree_string(thread_id, 0, label_length);
+        out << timer.tree_string(thread_id, 0, label_length, conversion);
     }
 }
 

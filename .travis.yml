@@ -5,19 +5,19 @@ matrix:
 
     - os: linux
       compiler: gcc
-      env: COMPILER=g++-7 BUILD_TYPE=Release
+      env: COMPILER=g++-7 BUILD_TYPE=Release  FC=gfortran-7 
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-7']
+          packages: ['g++-7', 'gfortran-7']
 
     - os: linux
       compiler: gcc
-      env: COMPILER=g++-8 BUILD_TYPE=Release
+      env: COMPILER=g++-8 BUILD_TYPE=Release FC=gfortran-8
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-8']
+          packages: ['g++-8', 'gfortran-8']
 
 
 script:
@@ -25,6 +25,6 @@ script:
   - SRC_DIR=${TRAVIS_BUILD_DIR}
   - mkdir -p ${BUILD_DIR}
   - cd ${BUILD_DIR}
-  - cmake -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DVT_TIMERS_ENABLE_TESTS=ON ${SRC_DIR}
+  - cmake -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_CXX_COMPILER=${COMPILER} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DVT_TIMERS_ENABLE_TESTS=ON ${SRC_DIR}
   - make -j VERBOSE=1
   - ./vt_timers_test
